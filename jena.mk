@@ -14,9 +14,6 @@
 
 DEVICE_PACKAGE_OVERLAYS += device/samsung/jena/overlay
 
-## Uncomment line below to force build recovery
-#BUILD_RECOVERY := true
-
 include device/samsung/msm7x27a-common/msm7x27a.mk
 
 ## NFC
@@ -24,21 +21,34 @@ PRODUCT_PACKAGES += \
     libnfc \
     libnfc_jni \
     Nfc \
-    Tag
+    nfc.default \
+    Tag 
 
+# NFCEE access control
+
+ifeq ($(TARGET_BUILD_VARIANT),user)
+NFCEE_ACCESS_PATH := device/samsung/jena/nfc/nfcee_access.xml
+else
+NFCEE_ACCESS_PATH := device/samsung/jena/nfc/nfcee_access_debug.xml
+endif
+ 
+PRODUCT_COPY_FILES += \
+    	$(NFCEE_ACCESS_PATH):system/etc/nfcee_access.xml
+ 
 ## NFC permissions
 PRODUCT_COPY_FILES += \
-    frameworks/native/data/etc/android.hardware.nfc.xml:system/etc/permissions/android.hardware.nfc.xml
+     frameworks/base/nfc-extras/com.android.nfc_extras.xml:system/etc/permissions/com.android.nfc_extras.xml \
+    frameworks/native/data/etc/com.nxp.mifare.xml:system/etc/permissions/com.nxp.mifare.xml \
+    frameworks/native/data/etc/android.hardware.nfc.xml:system/etc/permissions/android.hardware.nfc.xml \
 
-# Using different splash screen for CM and CWM
 ifndef BUILD_RECOVERY
 ## Splash screen
 PRODUCT_COPY_FILES += \
-    device/samsung/jena/rootdir/init.rle:root/GT-S6500.rle
+    device/samsung/jena/ramdisk/init.rle:root/GT-S6500.rle
 else
 ## Recovery splash screen
 PRODUCT_COPY_FILES += \
-    device/samsung/jena/rootdir/init-cwm.rle:root/GT-S6500.rle
+    device/samsung/jena/ramdisk/init-cwm.rle:root/GT-S6500.rle
 endif
 
 $(call inherit-product, vendor/samsung/jena/blobs.mk)
